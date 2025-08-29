@@ -9,119 +9,163 @@ you can do it by changing all 'llm' and 'embedding_model' variables present in m
 
 Each llm definition has unique temperature value relevant to the specific class. 
 """
+import os
+import json
+from typing import List, Any
+import requests
 
 import os
 from dotenv import load_dotenv
-from langchain_openai import AzureOpenAIEmbeddings, AzureChatOpenAI
+from langchain_openai import AzureOpenAIEmbeddings, AzureChatOpenAI, ChatOpenAI
+from langchain_core.embeddings import Embeddings
 
 # Load environment variables from .env file
 load_dotenv()
 
+class EmbeddingConfig:
+    def __init__(self):
+        self.provider = os.getenv("EMBEDDING_PROVIDER", "azure_openai").lower()
+        # Stella settings
+        self.stella_api_key = os.getenv("SIMPLISMART_STELLA_API_KEY")
+        self.stella_model_url = os.getenv("SIMPLISMART_STELLA_URL")
+        self.stella_vector_dim = int(os.getenv("stella_vector_dim", "1024"))
+
 class AgentDecisoinConfig:
     def __init__(self):
-        self.llm = AzureChatOpenAI(
-            deployment_name = os.getenv("deployment_name"),  # Replace with your Azure deployment name
-            model_name = os.getenv("model_name"),  # Replace with your Azure model name
-            azure_endpoint = os.getenv("azure_endpoint"),  # Replace with your Azure endpoint
-            openai_api_key = os.getenv("openai_api_key"),  # Replace with your Azure OpenAI API key
-            openai_api_version = os.getenv("openai_api_version"),  # Ensure this matches your API version
-            temperature = 0.1  # Deterministic
+        self.llm = ChatOpenAI(
+            model = "gpt-4o-mini",
+            temperature = 0.1,
+            api_key = os.getenv("openai_api_key")
         )
 
 class ConversationConfig:
     def __init__(self):
-        self.llm = AzureChatOpenAI(
-            deployment_name = os.getenv("deployment_name"),  # Replace with your Azure deployment name
-            model_name = os.getenv("model_name"),  # Replace with your Azure model name
-            azure_endpoint = os.getenv("azure_endpoint"),  # Replace with your Azure endpoint
-            openai_api_key = os.getenv("openai_api_key"),  # Replace with your Azure OpenAI API key
-            openai_api_version = os.getenv("openai_api_version"),  # Ensure this matches your API version
-            temperature = 0.7  # Creative but factual
+         self.llm = ChatOpenAI(
+            model = "gpt-4o-mini",
+            temperature = 0.1,
+            api_key = os.getenv("openai_api_key")
         )
 
 class WebSearchConfig:
     def __init__(self):
-        self.llm = AzureChatOpenAI(
-            deployment_name = os.getenv("deployment_name"),  # Replace with your Azure deployment name
-            model_name = os.getenv("model_name"),  # Replace with your Azure model name
-            azure_endpoint = os.getenv("azure_endpoint"),  # Replace with your Azure endpoint
-            openai_api_key = os.getenv("openai_api_key"),  # Replace with your Azure OpenAI API key
-            openai_api_version = os.getenv("openai_api_version"),  # Ensure this matches your API version
-            temperature = 0.3  # Slightly creative but factual
+        self.llm = ChatOpenAI(
+            model = "gpt-4o-mini",
+            temperature = 0.1,
+            api_key = os.getenv("openai_api_key")
         )
         self.context_limit = 20     # include last 20 messsages (10 Q&A pairs) in history
+
+class StellaEmbeddings(Embeddings):
+    def __init__(self, api_key: str | None = None, model_url: str | None = None, vector_dim: int = 1024):
+        self.api_key = api_key or os.getenv("SIMPLISMART_STELLA_API_KEY")
+        self.model_url = model_url or os.getenv("SIMPLISMART_STELLA_URL")
+        self.vector_dim = vector_dim  
+        if not self.api_key or not self.model_url:      
+            raise ValueError("SIMPLISMART_STELLA_API_KEY and SIMPLISMART_STELLA_URL must be set for StellaEmbeddings")
+
+    def _encode(self, texts: List[str], prefix: str) -> List[List[float]]:
+        try:
+            payload = json.dumps({
+                "query": texts,
+                "prefix": prefix,
+                "vector_dim": self.vector_dim,
+            })
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+            }
+            response = requests.post(self.model_url, headers=headers, data=payload, timeout=60)
+            response.raise_for_status()
+            
+            response_data = response.json()
+            if "embedding" not in response_data:
+                raise ValueError(f"Response missing 'embedding' key. Response: {response_data}")
+            
+            embeddings_data = response_data["embedding"]
+            
+            # Ensure list[list[float]]
+            if isinstance(embeddings_data, list) and embeddings_data and isinstance(embeddings_data[0], (int, float)):
+                return [embeddings_data]
+            return embeddings_data
+            
+        except requests.exceptions.RequestException as e:
+            raise ValueError(f"Error calling Stella API: {e}")
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Error parsing Stella API response: {e}")
+
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        """Embed a list of documents"""
+        return self._encode(texts, prefix="passage")
+
+    def embed_query(self, text: str) -> List[float]:
+        """Embed a single query"""
+        return self._encode([text], prefix="query")[0]
+
 
 class RAGConfig:
     def __init__(self):
         self.vector_db_type = "qdrant"
-        self.embedding_dim = 1536  # Add the embedding dimension here
-        self.distance_metric = "Cosine"  # Add this with a default value
-        self.use_local = True  # Add this with a default value
-        self.vector_local_path = "./data/qdrant_db"  # Add this with a default value
+        self.distance_metric = "Cosine"
+        self.use_local = True
+        self.vector_local_path = "./data/qdrant_db"
         self.doc_local_path = "./data/docs_db"
         self.parsed_content_dir = "./data/parsed_docs"
         self.url = os.getenv("QDRANT_URL")
         self.api_key = os.getenv("QDRANT_API_KEY")
-        self.collection_name = "medical_assistance_rag"  # Ensure a valid name
-        self.chunk_size = 512  # Modify based on documents and performance
-        self.chunk_overlap = 50  # Modify based on documents and performance
-        # self.embedding_model = "text-embedding-3-large"
-        # Initialize Azure OpenAI Embeddings
-        self.embedding_model = AzureOpenAIEmbeddings(
-            deployment = os.getenv("embedding_deployment_name"),  # Replace with your Azure deployment name
-            model = os.getenv("embedding_model_name"),  # Replace with your Azure model name
-            azure_endpoint = os.getenv("embedding_azure_endpoint"),  # Replace with your Azure endpoint
-            openai_api_key = os.getenv("embedding_openai_api_key"),  # Replace with your Azure OpenAI API key
-            openai_api_version = os.getenv("embedding_openai_api_version")  # Ensure this matches your API version
+        self.collection_name = "medical_assistance_rag_v1"
+        self.chunk_size = 512
+        self.chunk_overlap = 50
+
+        # Embeddings provider selection
+        self.embedding_provider = os.getenv("EMBEDDING_PROVIDER", "stella")
+        if self.embedding_provider == "stella":
+            # Get vector dimension from environment with proper fallback
+            vector_dim = int(os.getenv("STELLA_VECTOR_DIM", "1024"))
+            
+            self.embedding_model = StellaEmbeddings(
+                api_key=os.getenv("SIMPLISMART_STELLA_API_KEY"),
+                model_url=os.getenv("SIMPLISMART_STELLA_URL"),
+                vector_dim=vector_dim,
+            )
+            self.embedding_dim = vector_dim
+        else: 
+            raise ValueError("No valid embedding provider configured. Set EMBEDDING_PROVIDER=stella")
+
+        # Validate OpenAI API key
+        openai_key = os.getenv("OPENAI_API_KEY")
+        if not openai_key:
+            raise ValueError("OPENAI_API_KEY environment variable is required")
+
+        self.llm = ChatOpenAI(
+            model="gpt-4o-mini",
+            temperature=0.1,
+            api_key=openai_key
         )
-        self.llm = AzureChatOpenAI(
-            deployment_name = os.getenv("deployment_name"),  # Replace with your Azure deployment name
-            model_name = os.getenv("model_name"),  # Replace with your Azure model name
-            azure_endpoint = os.getenv("azure_endpoint"),  # Replace with your Azure endpoint
-            openai_api_key = os.getenv("openai_api_key"),  # Replace with your Azure OpenAI API key
-            openai_api_version = os.getenv("openai_api_version"),  # Ensure this matches your API version
-            temperature = 0.3  # Slightly creative but factual
+        self.summarizer_model = ChatOpenAI(
+            model="gpt-4o-mini",
+            temperature=0.1,
+            api_key=openai_key
         )
-        self.summarizer_model = AzureChatOpenAI(
-            deployment_name = os.getenv("deployment_name"),  # Replace with your Azure deployment name
-            model_name = os.getenv("model_name"),  # Replace with your Azure model name
-            azure_endpoint = os.getenv("azure_endpoint"),  # Replace with your Azure endpoint
-            openai_api_key = os.getenv("openai_api_key"),  # Replace with your Azure OpenAI API key
-            openai_api_version = os.getenv("openai_api_version"),  # Ensure this matches your API version
-            temperature = 0.5  # Slightly creative but factual
+        self.chunker_model = ChatOpenAI(
+            model="gpt-4o-mini",
+            temperature=0.1,
+            api_key=openai_key
         )
-        self.chunker_model = AzureChatOpenAI(
-            deployment_name = os.getenv("deployment_name"),  # Replace with your Azure deployment name
-            model_name = os.getenv("model_name"),  # Replace with your Azure model name
-            azure_endpoint = os.getenv("azure_endpoint"),  # Replace with your Azure endpoint
-            openai_api_key = os.getenv("openai_api_key"),  # Replace with your Azure OpenAI API key
-            openai_api_version = os.getenv("openai_api_version"),  # Ensure this matches your API version
-            temperature = 0.0  # factual
+        self.response_generator_model = ChatOpenAI(
+            model="gpt-4o-mini",
+            temperature=0.1,
+            api_key=openai_key
         )
-        self.response_generator_model = AzureChatOpenAI(
-            deployment_name = os.getenv("deployment_name"),  # Replace with your Azure deployment name
-            model_name = os.getenv("model_name"),  # Replace with your Azure model name
-            azure_endpoint = os.getenv("azure_endpoint"),  # Replace with your Azure endpoint
-            openai_api_key = os.getenv("openai_api_key"),  # Replace with your Azure OpenAI API key
-            openai_api_version = os.getenv("openai_api_version"),  # Ensure this matches your API version
-            temperature = 0.3  # Slightly creative but factual
-        )
+        
         self.top_k = 5
-        self.vector_search_type = 'similarity'  # or 'mmr'
-
+        self.vector_search_type = 'similarity'
         self.huggingface_token = os.getenv("HUGGINGFACE_TOKEN")
-
         self.reranker_model = "cross-encoder/ms-marco-TinyBERT-L-6"
         self.reranker_top_k = 3
-
-        self.max_context_length = 8192  # (Change based on your need) # 1024 proved to be too low (retrieved content length > context length = no context added) in formatting context in response_generator code
-
-        self.include_sources = True  # Show links to reference documents and images along with corresponding query response
-
-        # ADJUST ACCORDING TO ASSISTANT'S BEHAVIOUR BASED ON THE DATA INGESTED:
-        self.min_retrieval_confidence = 0.40  # The auto routing from RAG agent to WEB_SEARCH agent is dependent on this value
-
-        self.context_limit = 20     # include last 20 messsages (10 Q&A pairs) in history
+        self.max_context_length = 8192
+        self.include_sources = True
+        self.min_retrieval_confidence = 0.40
+        self.context_limit = 20
 
 class MedicalCVConfig:
     def __init__(self):
@@ -129,13 +173,10 @@ class MedicalCVConfig:
         self.chest_xray_model_path = "./agents/image_analysis_agent/chest_xray_agent/models/covid_chest_xray_model.pth"
         self.skin_lesion_model_path = "./agents/image_analysis_agent/skin_lesion_agent/models/checkpointN25_.pth.tar"
         self.skin_lesion_segmentation_output_path = "./uploads/skin_lesion_output/segmentation_plot.png"
-        self.llm = AzureChatOpenAI(
-            deployment_name = os.getenv("deployment_name"),  # Replace with your Azure deployment name
-            model_name = os.getenv("model_name"),  # Replace with your Azure model name
-            azure_endpoint = os.getenv("azure_endpoint"),  # Replace with your Azure endpoint
-            openai_api_key = os.getenv("openai_api_key"),  # Replace with your Azure OpenAI API key
-            openai_api_version = os.getenv("openai_api_version"),  # Ensure this matches your API version
-            temperature = 0.1  # Keep deterministic for classification tasks
+        self.llm = ChatOpenAI(
+            model = "gpt-4o-mini",
+            temperature = 0.1,
+            api_key = os.getenv("openai_api_key")
         )
 
 class SpeechConfig:
@@ -173,6 +214,7 @@ class UIConfig:
 
 class Config:
     def __init__(self):
+        self.embedding = EmbeddingConfig()
         self.agent_decision = AgentDecisoinConfig()
         self.conversation = ConversationConfig()
         self.rag = RAGConfig()

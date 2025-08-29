@@ -49,6 +49,7 @@ templates = Jinja2Templates(directory="templates")
 client = ElevenLabs(
     api_key=config.speech.eleven_labs_api_key,
 )
+print(client)
 
 # Define allowed file extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -355,6 +356,8 @@ async def generate_speech(request: SpeechRequest):
 
         # Send request to ElevenLabs API
         response = requests.post(elevenlabs_url, headers=headers, json=payload)
+
+        print(response)
 
         if response.status_code != 200:
             return JSONResponse(

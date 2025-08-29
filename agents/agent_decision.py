@@ -127,7 +127,9 @@ def create_agent_graph():
     # Define graph state transformations
     def analyze_input(state: AgentState) -> AgentState:
         """Analyze the input to detect images and determine input type."""
+        print("state", state)
         current_input = state["current_input"]
+        print("current_input", current_input)
         has_image = False
         image_type = None
         
@@ -697,7 +699,7 @@ def process_query(query: Union[str, Dict], conversation_history: List[BaseMessag
     # Initialize the graph
     graph = create_agent_graph()
 
-    # # Save Graph Flowchart
+    # # # Save Graph Flowchart
     # image_bytes = graph.get_graph().draw_mermaid_png()
     # decoded = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), -1)
     # cv2.imwrite("./assets/graph.png", decoded)

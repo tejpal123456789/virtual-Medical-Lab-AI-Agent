@@ -8,8 +8,11 @@ from typing import List, Dict, Any, Tuple, Optional
 from langchain_core.documents import Document
 from langchain.storage import InMemoryStore, LocalFileStore
 from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
+from langchain_core.embeddings import Embeddings
 from qdrant_client import QdrantClient, models
 from qdrant_client.http.models import Distance, SparseVectorParams, VectorParams, OptimizersConfigDiff
+from config import RAGConfig
+from config import StellaEmbeddings
 
 class VectorStore:
     """
@@ -26,8 +29,10 @@ class VectorStore:
         self.vectorstore_local_path = config.rag.vector_local_path
         self.docstore_local_path = config.rag.doc_local_path
 
-        # Use the singleton client instead of creating a new one
-        # self.client = QdrantClientManager.get_client(config)
+        # Ensure directories exist
+        os.makedirs(self.vectorstore_local_path, exist_ok=True)
+        os.makedirs(self.docstore_local_path, exist_ok=True)
+        
         self.client = QdrantClient(path=self.vectorstore_local_path)
 
     def _does_collection_exist(self) -> bool:
@@ -103,23 +108,31 @@ class VectorStore:
             Tuple containing (vectorstore, docstore, doc_ids)
         """
         
+        if not document_chunks:
+            raise ValueError("document_chunks cannot be empty")
+        
         # Generate unique IDs for each chunk
         doc_ids = [str(uuid4()) for _ in range(len(document_chunks))]
         
         # Create langchain documents
         langchain_documents = []
         for id_idx, chunk in enumerate(document_chunks):
+            if not chunk.strip():  # Skip empty chunks
+                continue
+                
             langchain_documents.append(
                 Document(
                     page_content=chunk,
                     metadata={
                         "source": os.path.basename(document_path),
                         "doc_id": doc_ids[id_idx],
-                        # "source_path": Path(os.path.abspath(document_path)).as_uri()
                         "source_path": os.path.join("http://localhost:8000/", document_path)
                     }
                 )
             )
+        
+        if not langchain_documents:
+            raise ValueError("No valid document chunks to process")
         
         # Setup sparse embeddings
         sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
@@ -146,19 +159,28 @@ class VectorStore:
         # Document storage for parent documents
         docstore = LocalFileStore(self.docstore_local_path)
         
-        # Ingest documents into vector and doc stores
-        qdrant_vectorstore.add_documents(documents=langchain_documents, ids=doc_ids)
-        
-        # Encode string chunks to bytes before storing
-        encoded_chunks = [chunk.encode('utf-8') for chunk in document_chunks]
-        docstore.mset(list(zip(doc_ids, encoded_chunks)))
+        try:
+            # Ingest documents into vector and doc stores
+            qdrant_vectorstore.add_documents(documents=langchain_documents, ids=doc_ids[:len(langchain_documents)])
+            
+            # Encode string chunks to bytes before storing
+            valid_chunks = [chunk for chunk in document_chunks if chunk.strip()]
+            encoded_chunks = [chunk.encode('utf-8') for chunk in valid_chunks]
+            docstore.mset(list(zip(doc_ids[:len(encoded_chunks)], encoded_chunks)))
+            
+            self.logger.info(f"Successfully ingested {len(langchain_documents)} documents")
+            return qdrant_vectorstore, docstore, doc_ids[:len(langchain_documents)]
+            
+        except Exception as e:
+            self.logger.error(f"Error during document ingestion: {e}")
+            raise
 
     def retrieve_relevant_chunks(
             self,
             query: str,
             vectorstore: QdrantVectorStore,
             docstore: LocalFileStore,
-        ) -> Tuple[List[Dict[str, Any]], List[str]]:
+        ) -> List[Dict[str, Any]]:
         """
         Retrieve relevant chunks based on a query.
         
@@ -168,45 +190,123 @@ class VectorStore:
             docstore: Document store containing actual content
             
         Returns:
-            Tuple containing (retrieved_docs, picture_reference_paths)
-            where retrieved_docs is a list of dictionaries with content and score
+            List of dictionaries with content and score
         """
-        # Use similarity_search_with_score to get documents and scores
-        results = vectorstore.similarity_search_with_score(
-            query=query,
-            k=self.retrieval_top_k
+        if not query.strip():
+            raise ValueError("Query cannot be empty")
+        
+        try:
+            # Use similarity_search_with_score to get documents and scores
+            results = vectorstore.similarity_search_with_score(
+                query=query,
+                k=self.retrieval_top_k
+            )
+            
+            retrieved_docs = []
+            
+            for chunk, score in results:
+                try:
+                    # Get full document from doc store as bytes and decode to string
+                    doc_content_bytes = docstore.mget([chunk.metadata['doc_id']])[0]
+                    if doc_content_bytes is None:
+                        self.logger.warning(f"Document with ID {chunk.metadata['doc_id']} not found in docstore")
+                        continue
+                        
+                    doc_content = doc_content_bytes.decode('utf-8')
+                    
+                    # Create document dict in the format expected by reranker
+                    doc_dict = {
+                        "id": chunk.metadata['doc_id'],
+                        "content": doc_content,
+                        "score": float(score),  # Ensure score is serializable
+                        "source": chunk.metadata['source'],
+                        "source_path": chunk.metadata['source_path'],
+                    }
+                    retrieved_docs.append(doc_dict)
+                    
+                except Exception as e:
+                    self.logger.warning(f"Error processing chunk {chunk.metadata.get('doc_id', 'unknown')}: {e}")
+                    continue
+            
+            return retrieved_docs
+            
+        except Exception as e:
+            self.logger.error(f"Error during retrieval: {e}")
+            raise
+
+
+# Debug version to show when methods are called
+class DebugStellaEmbeddings(StellaEmbeddings):
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        print(f"🔍 embed_documents called with {len(texts)} texts")
+        print(f"📝 First text preview: {texts[0][:100]}..." if texts else "No texts")
+        result = super().embed_documents(texts)
+        print(f"✅ embed_documents returned {len(result)} embeddings")
+        return result
+
+    def embed_query(self, text: str) -> List[float]:
+        print(f"🔍 embed_query called with text: {text[:100]}...")
+        result = super().embed_query(text)
+        print(f"✅ embed_query returned embedding of length {len(result)}")
+        return result
+
+    def _encode(self, texts: List[str], prefix: str) -> List[List[float]]:
+        print(f"🚀 _encode called with prefix='{prefix}' and {len(texts)} texts")
+        result = super()._encode(texts, prefix)
+        print(f"✅ _encode returned {len(result)} embeddings")
+        return result
+
+
+# Usage example showing the call flow
+def main():
+    # Initialize configuration
+    config = RAGConfig()
+    
+    # Replace with debug version to see method calls
+    config.embedding_model = DebugStellaEmbeddings(
+        api_key=os.getenv("SIMPLISMART_STELLA_API_KEY"),
+        model_url=os.getenv("SIMPLISMART_STELLA_URL"),
+        vector_dim=config.embedding_dim,
+    )
+    
+    # Initialize vector store
+    vector_store = VectorStore(config)
+    
+    # Example document chunks
+    document_chunks = [
+        "This is the first chunk of the document.",
+        "This is the second chunk with more information.",
+        "This is the third chunk containing additional details."
+    ]
+    
+    document_path = "example_document.txt"
+    
+    try:
+        print("=== CREATING VECTOR STORE ===")
+        # Create vector store - this will call embed_documents()
+        qdrant_vectorstore, docstore, doc_ids = vector_store.create_vectorstore(
+            document_chunks=document_chunks,
+            document_path=document_path
         )
         
-        retrieved_docs = []
-        # picture_reference_paths = []
+        print("\n=== PERFORMING QUERY ===")
+        # Test retrieval - this will call embed_query()
+        query = "information about the document"
+        results = vector_store.retrieve_relevant_chunks(
+            query=query,
+            vectorstore=qdrant_vectorstore,
+            docstore=docstore
+        )
         
-        for chunk, score in results:
-            # Get full document from doc store as bytes and decode to string
-            doc_content_bytes = docstore.mget([chunk.metadata['doc_id']])[0]
-            doc_content = doc_content_bytes.decode('utf-8')
+        print(f"\nRetrieved {len(results)} relevant chunks")
+        for i, result in enumerate(results):
+            print(f"Chunk {i+1}: {result['content'][:100]}... (Score: {result['score']:.4f})")
             
-            # Add metadata to the document
-            # formatted_doc = f"{doc_content}\nFollowing are the 'filename' and 'path as uri' of the source document for the current chunk: {chunk.metadata['source']}, {chunk.metadata['source_path']}"
-            formatted_doc = doc_content
-            
-            # Create document dict in the format expected by reranker
-            doc_dict = {
-                "id": chunk.metadata['doc_id'],
-                "content": formatted_doc,
-                "score": score,  # Use the actual similarity score
-                "source": chunk.metadata['source'],
-                "source_path": chunk.metadata['source_path'],
-            }
-            retrieved_docs.append(doc_dict)
-            
-            # # Extract picture references
-            # matches = re.finditer(r"picture_counter_(\d+)", doc_content)
-            # for match in matches:
-            #     counter_value = int(match.group(1))
-            #     # Create picture path based on document source and counter
-            #     doc_basename = os.path.splitext(chunk.metadata['source'])[0]  # Remove file extension
-            #     picture_path = Path(os.path.abspath(parsed_content_dir + "/" + f"{doc_basename}-picture-{counter_value}.png")).as_uri()
-            #     picture_reference_paths.append(picture_path)
-        
-        # return retrieved_docs, picture_reference_paths
-        return retrieved_docs
+    except Exception as e:
+        print(f"Error: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+if __name__ == "__main__":
+    main()
