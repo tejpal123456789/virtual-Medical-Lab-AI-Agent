@@ -214,5 +214,9 @@ class ContentProcessor:
         # Add the last section if it's not empty
         if current_section:
             sections.append("".join(current_section).strip())
+        
+        with open("sections.txt", "w") as f:
+            for section in sections:
+                f.write(section + "\n")
 
         return sections

@@ -126,12 +126,13 @@ class MedicalRAG:
             # Step 2: Summarize images
             self.logger.info("2. Summarizing images...")
             image_summaries = self.content_processor.summarize_images(images)
+            print(image_summaries)
             self.logger.info(f"   Generated {len(image_summaries)} image summaries")
 
             # Step 3: Format document with image summaries
             self.logger.info("3. Formatting document with image summaries...")
             formatted_document = self.content_processor.format_document_with_images(parsed_document, image_summaries)
-
+            print(formatted_document)
             # Step 4: Chunk document into semantic sections
             self.logger.info("4. Chunking document into semantic sections...")
             document_chunks = self.content_processor.chunk_document(formatted_document)

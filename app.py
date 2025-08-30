@@ -49,6 +49,7 @@ templates = Jinja2Templates(directory="templates")
 client = ElevenLabs(
     api_key=config.speech.eleven_labs_api_key,
 )
+print(client)
 
 # Define allowed file extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -103,7 +104,8 @@ def chat(
         session_id = str(uuid.uuid4())
     
     try:
-        response_data = process_query(request.query)
+        # Pass session_id to process_query for memory tracking
+        response_data = process_query(request.query, session_id=session_id)
         response_text = response_data['messages'][-1].content
         
         # Set session cookie
@@ -171,7 +173,8 @@ async def upload_image(
     
     try:
         query = {"text": text, "image": file_path}
-        response_data = process_query(query)
+        # Pass session_id to process_query for memory tracking
+        response_data = process_query(query, session_id=session_id)
         response_text = response_data['messages'][-1].content
 
         # Set session cookie
@@ -223,7 +226,8 @@ def validate_medical_output(
         if comments:
             validation_query += f" Comments: {comments}"
         
-        response_data = process_query(validation_query)
+        # Pass session_id to process_query for memory tracking
+        response_data = process_query(validation_query, session_id=session_id)
 
         if validation_result.lower() == 'yes':
             return {
@@ -355,6 +359,8 @@ async def generate_speech(request: SpeechRequest):
 
         # Send request to ElevenLabs API
         response = requests.post(elevenlabs_url, headers=headers, json=payload)
+
+        print(response)
 
         if response.status_code != 200:
             return JSONResponse(
