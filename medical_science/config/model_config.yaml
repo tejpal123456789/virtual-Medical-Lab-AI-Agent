@@ -1,0 +1,80 @@
+# Model and service configuration
+# Values can be overridden via environment variables in runtime code
+
+llm:
+  provider: azure_openai
+  deployment_name: ${deployment_name}
+  model_name: ${model_name}
+  azure_endpoint: ${azure_endpoint}
+  openai_api_key: ${openai_api_key}
+  openai_api_version: ${openai_api_version}
+  temperature: 0.1
+
+conversation:
+  temperature: 0.7
+
+web_search:
+  temperature: 0.3
+  context_limit: 20
+
+rag:
+  vector_db_type: qdrant
+  embedding_provider: stella  # options: stella | azure_openai
+  embedding_dim: 1024         # 1024 for stella_en_1.5B_v5
+  distance_metric: Cosine
+  use_local: true
+  vector_local_path: ./data/qdrant_db
+  doc_local_path: ./data/docs_db
+  parsed_content_dir: ./data/parsed_docs
+  collection_name: medical_assistance_rag
+  chunk_size: 512
+  chunk_overlap: 50
+  top_k: 5
+  vector_search_type: similarity
+  max_context_length: 8192
+  include_sources: true
+  min_retrieval_confidence: 0.4
+  context_limit: 20
+  stella:
+    api_key: ${stella_api_key}
+    model_url: ${stella_model_url}
+    vector_dim: 1024
+
+medical_cv:
+  brain_tumor_model_path: ./agents/image_analysis_agent/brain_tumor_agent/models/brain_tumor_segmentation.pth
+  chest_xray_model_path: ./agents/image_analysis_agent/chest_xray_agent/models/covid_chest_xray_model.pth
+  skin_lesion_model_path: ./agents/image_analysis_agent/skin_lesion_agent/models/checkpointN25_.pth.tar
+  skin_lesion_segmentation_output_path: ./uploads/skin_lesion_output/segmentation_plot.png
+
+speech:
+  eleven_labs_api_key: ${ELEVEN_LABS_API_KEY}
+  eleven_labs_voice_id: 21m00Tcm4TlvDq8ikWAM
+
+validation:
+  require_validation:
+    CONVERSATION_AGENT: false
+    RAG_AGENT: false
+    WEB_SEARCH_AGENT: false
+    BRAIN_TUMOR_AGENT: true
+    CHEST_XRAY_AGENT: true
+    SKIN_LESION_AGENT: true
+  validation_timeout: 300
+  default_action: reject
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  debug: true
+  rate_limit: 10
+  max_image_upload_size: 5
+
+ui:
+  theme: light
+  enable_speech: true
+  enable_image_upload: true
+
+keys:
+  TAVILY_API_KEY: ${TAVILY_API_KEY}
+  HUGGINGFACE_TOKEN: ${HUGGINGFACE_TOKEN}
+  QDRANT_URL: ${QDRANT_URL}
+  QDRANT_API_KEY: ${QDRANT_API_KEY} 
