@@ -1,8 +1,5 @@
-<div align="center">
- 
-![logo](https://github.com/souvikmajumder26/Multi-Agent-Medical-Assistant/blob/main/assets/logo_rounded.png)
 
-<h1 align="center"><strong>⚕️ Multi-Agent-Medical-Assistant :<h6 align="center">AI-powered multi-agentic system for medical diagnosis and assistance</h6></strong></h1>
+<h1 align="center"><strong>⚕️ Multi-Agent-Medical-Assistant :<h6 align="center">AI-powered multi-agentic system for medical diagnosis and assistance with advanced memory management</h6></strong></h1>
 
 <!-- ![PyTorch - Version](https://img.shields.io/badge/PYTORCH-2.0+-red?style=for-the-badge&logo=pytorch) -->
 ![Python - Version](https://img.shields.io/badge/PYTHON-3.11+-blue?style=for-the-badge&logo=python&logoColor=white)
@@ -12,8 +9,11 @@
 ![Pydantic - Version](https://img.shields.io/badge/Pydantic-2.10+-red?style=for-the-badge&logo=pydantic)
 ![FastAPI - Version](https://img.shields.io/badge/FastAPI-0.115+-teal?style=for-the-badge&logo=fastapi)
 ![Docling - Version](https://img.shields.io/badge/Docling-3.1+-orange?style=for-the-badge&logo=docling)
-[![Generic badge](https://img.shields.io/badge/License-Apache-<COLOR>.svg?style=for-the-badge)](https://github.com/souvikmajumder26/Multi-Agent-Medical-Assistant/blob/main/LICENSE) 
-[![GitHub Issues](https://img.shields.io/github/issues/souvikmajumder26/Multi-Agent-Medical-Assistant.svg?style=for-the-badge)](https://github.com/souvikmajumder26/Multi-Agent-Medical-Assistant/issues)
+![Mem0 - Version](https://img.shields.io/badge/Mem0-0.1+-purple?style=for-the-badge&logo=mem0)
+![Bright Data - Version](https://img.shields.io/badge/Bright_Data-1.0+-green?style=for-the-badge&logo=brightdata)
+![Arcade - Version](https://img.shields.io/badge/Arcade-1.0+-blue?style=for-the-badge&logo=arcade)
+[![Generic badge](https://img.shields.io/badge/License-Apache-<COLOR>.svg?style=for-the-badge)](https://github.com/tejpal123456789/virtual-Medical-Lab-AI-Agent/blob/main/LICENSE) 
+[![GitHub Issues](https://img.shields.io/github/issues/tejpal123456789/virtual-Medical-Lab-AI-Agent.svg?style=for-the-badge)](https://github.com/tejpal123456789/virtual-Medical-Lab-AI-Agent/issues)
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge)
 
 </div>
@@ -24,6 +24,9 @@
 > 📋 Version Updates from v2.0 to v2.1 and further:
 > 1. **Document Processing Upgrade**: Unstructured.io has been replaced with Docling for document parsing and extraction of text, tables, and images to be embedded.
 > 2. **Enhanced RAG References**: Links to source documents and reference images present in reranked retrieved chunks stored in local storage are added to the bottom of the RAG responses.
+> 3. **Advanced Memory Management**: Integration of LangGraph Checkpointer for short-term memory and Mem0 for long-term user context management.
+> 4. **Enhanced Web Search**: Bright Data integration for comprehensive web research capabilities.
+> 5. **Tool Authentication**: Arcade integration for secure tool authorization and human-in-the-loop validation.
 >
 > To use Unstructured.io based solution, refer release - [v2.0](https://github.com/souvikmajumder26/Multi-Agent-Medical-Assistant/tree/v2.0).
  
@@ -54,86 +57,72 @@ The **Multi-Agent Medical Assistant** is an **AI-powered chatbot** designed to a
 - **📚 Retrieval-Augmented Generation (RAG)** leveraging vector databases  
 - **🌐 Real-time Web Search** for up-to-date medical insights  
 - **👨‍⚕️ Human-in-the-Loop Validation** to verify AI-based medical image diagnoses  
+- **🧠 Advanced Memory Management** with short-term and long-term memory systems
+- **🔒 Secure Tool Authentication** with Arcade for human authorization
 
-### **What You’ll Learn from This Project** 📖  
+### **What You'll Learn from This Project** 📖  
 🔹 **👨‍💻 Multi-Agent Orchestration** with structured graph workflows  
 🔹 **🔍 Advanced RAG Techniques** – hybrid retrieval, semantic chunking, and vector search  
 🔹 **⚡ Confidence-Based Routing** & **Agent-to-Agent Handoff**  
-🔹 **🔒 Scalable, Production-Ready AI with Modularized Code & Robust Exception Handling**  
+🔹 **🧠 Memory Management** – Short-term conversation state and long-term user context  
+🔹 **🔒 Production-Ready AI** with Modularized Code & Robust Exception Handling  
+🔹 **🛡️ Security & Authorization** – Tool authentication and human validation workflows  
 
 📂 **For learners**: Check out [`agents/README.md`](agents/README.md) for a **detailed breakdown** of the agentic workflow! 🎯  
 
-<!-- The **Multi-Agent Medical Assistant** is an advanced AI-powered chatbot system designed to assist in medical diagnosis, research, and patient interactions.
-
-Using a **Multi-Agentic framework**, this assistant integrates **Large Language Models, Computer Vision Models, Retrieval Augmented Generation leveraging Vector Database**, and **Web Search** to provide **accurate**, **reliable**, and **up-to-date** medical insights.
-
-This project serves as a **comprehensive resource** for learning and implementing **GenAI with multi-agent orchestration**. It demonstrates **advanced Retrieval-Augmented Generation (RAG)**, integrating **vector search with hybrid retrieval techniques**, **efficient chunking strategies respecting document semantic boundaries**, **confidence-based routing**, **agent-to-agent handoff**, **real-time web search capabilities**, **human-in-the-loop validation** and more. The system incorporates **specialized AI agents** for medical reasoning, diagnosis, and research retrieval, all working seamlessly through a structured graph workflow. Developers will gain insights into **modular agentic AI solution design, and robust exception handling** — ensuring **scalability and production readiness**.
-
-For learners: Refer `agents/README.md` for detailed explanation of the agentic workflow. -->
-
----
-
-## 💫 Demo <a name="demo"></a>
-
-
-https://github.com/user-attachments/assets/d27d4a2e-1c7d-45e2-bbc5-b3d95ccd5b35
-
-
-If you like what you see and would want to support the project's developer, you can <a href="https://www.buymeacoffee.com/souvikmajumder" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a> ! :)
-
-📂 **For an even more detailed demo video**: Check out [`Multi-Agent-Medical-Assistant-v1.9`](assets/Multi-Agent-Medical-Assistant-v1.9_Compressed.mp4). 📽️
-
----
-
 ## 🛡️ Technical Flow Chart  <a name="technical-flowchart"></a>
 
-![Technical Flow Chart](assets/final_medical_assistant_flowchart_light_rounded.png)
+![Technical Flow Chart](assets/tech_diagram.png)
+
+The system follows a sophisticated workflow:
+
+1. **🔄 Memory Loading**: Short-term memory (LangGraph Checkpointer) and long-term memory (Mem0) are loaded with conversation state and user context
+2. **🛡️ Guardrail Check**: Input validation to determine if bypassing main agent routing is needed
+3. **🤖 Agent Routing**: Intelligent routing to specialized agents based on input analysis
+4. **🔍 Specialized Processing**: Each agent processes with memory-enhanced context
+5. **✅ Validation & Authorization**: Confidence-based routing and human validation when needed
+6. **💾 Memory Updates**: Continuous updates to both short-term and long-term memory systems
+7. **🛡️ Final Guardrails**: Output validation and safety checks before response delivery
 
 ---
-
-<!-- ## 🌟 Key Features  <a name="key-features"></a>
-✅ **Multi-Agent System** – Separate agents handle different tasks (diagnosis, retrieval, reasoning, etc.).  
-✅ **RAG-based Retrieval** – Uses Qdrant for vector search & hybrid retrieval techniques.  
-✅ **Medical Image Analysis** – Supports **brain tumor segmentation, chest X-ray disease detection, and skin lesion classification**.  
-✅ **Web Search Agent** – Fetches the latest medical research when required.  
-✅ **Confidence Score Check** – Ensures high accuracy with log probability-based verification.  
-✅ **Speech-to-Text & Text-to-Speech** – Uses **Eleven Labs API** for voice interactions.  
-✅ **Human-in-the-Loop Verification** – Medical professionals validate the AI’s results before final output.  
-✅ **Intuitive UI** – Built for seamless user experience.  
-
----
-
-## 🛠️ Tech Stack  <a name="tech-stack"></a>
-🔹 **Backend**: FastAPI 🚀  
-🔹 **Multi-Agent Orchestration**: LangGraph + LangChain 🤖  
-🔹 **Vector Database**: Qdrant (for retrieval-augmented generation) 🔍  
-🔹 **Medical Image Analysis**: Computer vision models (Brain Tumor - Semantic Segmentation, Chest X-ray - Object Detection, Skin Lesion - Classification) 🏥  
-🔹 **Speech Processing**: Eleven Labs API 🎙️  
-🔹 **UI**: HTML, CSS, JS 🌐  
-🔹 **Deployment**: Docker 🛠️   -->
 
 ## ✨ Key Features  <a name="key-features"></a>
 
 - 🤖 **Multi-Agent Architecture** : Specialized agents working in harmony to handle diagnosis, information retrieval, reasoning, and more
 
-- 🔍 **Advanced Agentic RAG Retrieval System** :
+- 🧠 **Advanced Memory Management System** :
+  - **Short-term Memory (LangGraph Checkpointer)**: Maintains conversation state and immediate context
+  - **Long-term Memory (Mem0)**: Stores user preferences, medical history, and persistent context
+  - **Memory-enhanced Processing**: All agents operate with full context awareness
+  - **Continuous Memory Updates**: Real-time synchronization between memory systems
 
-  - Docling based parsing to extract text, tables, and images from PDFs.
-  - Embedding markdown formatted text, tables and LLM based image summaries.
-  - LLM based semantic chunking with structural boundary awareness.
-  - LLM based query expansion with related medical domain terms.
-  - Qdrant hybrid search combining BM25 sparse keyword search along with dense embedding vector search.
-  - HuggingFace Cross-Encoder based reranking of retrieved document chunks for accurate LLM reponses.
-  - Input-output guardrails to ensure safe and relevant responses.
-  - Links to source documents and images present in reference document chunks provided with reponse.
-  - Confidence-based agent-to-agent handoff between RAG and Web Search to prevent hallucinations.
+- 🔍 **Advanced Agentic RAG Retrieval System** :
+  - Docling based parsing to extract text, tables, and images from PDFs
+  - Embedding markdown formatted text, tables and LLM based image summaries
+  - LLM based semantic chunking with structural boundary awareness
+  - LLM based query expansion with related medical domain terms
+  - Qdrant hybrid search combining BM25 sparse keyword search along with dense embedding vector search
+  - HuggingFace Cross-Encoder based reranking of retrieved document chunks for accurate LLM responses
+  - Input-output guardrails to ensure safe and relevant responses
+  - Links to source documents and images present in reference document chunks provided with response
+  - Confidence-based agent-to-agent handoff between RAG and Web Search to prevent hallucinations
+
+- 🌐 **Enhanced Web Research with Bright Data** :
+  - **Comprehensive Web Search**: Bright Data integration for extensive research capabilities
+  - **Real-time Medical Updates**: Latest research papers, clinical trials, and medical guidelines
+  - **Multi-source Validation**: Cross-referencing information from multiple authoritative sources
+  - **Structured Research Output**: Organized and validated research findings
 
 - 🏥 **Medical Imaging Analysis**  
   - Brain Tumor Detection (TBD)
   - Chest X-ray Disease Classification
   - Skin Lesion Segmentation
 
-- 🌐 **Real-time Research Integration** : Web search agent that retrieves the latest medical research papers and findings
+- 🔒 **Secure Tool Authentication with Arcade** :
+  - **Human Authorization Workflow**: Secure approval process for sensitive operations
+  - **Email Authorization**: Protected email sending with human validation
+  - **Tool Access Control**: Granular permissions for different system capabilities
+  - **Audit Trail**: Complete logging of authorization decisions and actions
 
 - 📊 **Confidence-Based Verification** : Log probability analysis ensures high accuracy in medical recommendations
 
@@ -148,7 +137,9 @@ If you like what you see and would want to support the project's developer, you 
 > [!NOTE]  
 > Upcoming features:
 > 1. Brain Tumor Medical Computer Vision model integration.
-> 2. Open to suggestions and contributions.
+> 2. Enhanced memory analytics and insights.
+> 3. Advanced security features with Arcade.
+> 4. Open to suggestions and contributions.
 
 ---
 
@@ -160,6 +151,9 @@ If you like what you see and would want to support the project's developer, you 
 | 🔹 **Agent Orchestration** | LangGraph |
 | 🔹 **Document Parsing** | Docling |
 | 🔹 **Knowledge Storage** | Qdrant Vector Database |
+| 🔹 **Memory Management** | LangGraph Checkpointer (Short-term), Mem0 (Long-term) |
+| 🔹 **Web Research** | Bright Data |
+| 🔹 **Tool Authentication** | Arcade |
 | 🔹 **Medical Imaging** | Computer Vision Models |
 | | • Brain Tumor: Object Detection (PyTorch) |
 | | • Chest X-ray: Image Classification (PyTorch) |
@@ -169,35 +163,18 @@ If you like what you see and would want to support the project's developer, you 
 | 🔹 **Frontend** | HTML, CSS, JavaScript |
 | 🔹 **Deployment** | Docker, GitHub Actions CI/CD |
 
----
-
-## 🚀 Installation & Setup  <a name="installation-setup"></a>
+## 🚀 Installation and Setup  <a name="installation-setup"></a>
 
 ## 📌 Option 1: Using Docker  <a name="docker-setup"></a>
 
-### Prerequisites:
-
-- [Docker](https://docs.docker.com/get-docker/) installed on your system
-- API keys for the required services
-
-### 1️⃣ Clone the Repository
-```bash
-git clone https://github.com/souvikmajumder26/Multi-Agent-Medical-Assistant.git
-cd Multi-Agent-Medical-Assistant
+### 1️⃣ Clone the Repository  
+```bash  
+git clone https://github.com/tejpal123456789/virtual-Medical-Lab-AI-Agent.git  
+cd virtual-Medical-Lab-AI-Agent  
 ```
 
-### 2️⃣ Create Environment File
-- Create a `.env` file in the root directory and add the following API keys:
-
-> [!NOTE]  
-> You may use any llm and embedding model of your choice...
-> 1. If using Azure OpenAI, no modification required.
-> 2. If using direct OpenAI, modify the llm and embedding model definitions in the 'config.py' and provide appropriate env variables.
-> 3. If using local models, appropriate code changes might be required throughout the codebase especially in 'agents'.
-
-> [!WARNING]  
-> Ensure the API keys in the `.env` file are correct and have the necessary permissions.
-> No trailing whitespaces after variable names.
+### 2️⃣ Set Up Environment Variables  
+Create a `.env` file in the root directory with the following variables:
 
 ```bash
 # LLM Configuration (Azure Open AI - gpt-4o used in development)
@@ -222,12 +199,26 @@ ELEVEN_LABS_API_KEY=
 # Web Search API Key (Free credits available with new Tavily Account)
 TAVILY_API_KEY=
 
+# Bright Data Configuration
+BRIGHT_DATA_USERNAME=
+BRIGHT_DATA_PASSWORD=
+BRIGHT_DATA_HOST=
+BRIGHT_DATA_PORT=
+
+# Arcade Configuration for Tool Authentication
+ARCADEA_API_KEY=
+ARCADEA_WORKSPACE_ID=
+
 # Hugging Face Token - using reranker model "ms-marco-TinyBERT-L-6"
 HUGGINGFACE_TOKEN=
 
 # (OPTIONAL) If using Qdrant server version, local does not require API key
 QDRANT_URL=
 QDRANT_API_KEY=
+
+# Memory Management Configuration
+MEM0_API_KEY=
+LANGGRAPH_CHECKPOINTER_PATH=./checkpoints
 ```
 
 ### 3️⃣ Build the Docker Image
@@ -294,8 +285,8 @@ docker logs medical-assistant-app
 
 ### 1️⃣ Clone the Repository  
 ```bash  
-git clone https://github.com/souvikmajumder26/Multi-Agent-Medical-Assistant.git  
-cd Multi-Agent-Medical-Assistant  
+git clone https://github.com/tejpal123456789/virtual-Medical-Lab-AI-Agent.git  
+cd virtual-Medical-Lab-AI-Agent  
 ```
 
 ### 2️⃣ Create & Activate Virtual Environment  
@@ -325,7 +316,7 @@ pip install -r requirements.txt
 ```
 - If using python venv:
 ```bash
-winget install ffmpeg
+winget install ffmpeg
 ```
 ```bash
 pip install -r requirements.txt  
@@ -362,15 +353,31 @@ python ingest_rag_data.py --dir ./data/raw
 > 2. On the first run, many models will be downloaded - yolo for tesseract ocr, computer vision agent models, cross-encoder reranker model, etc.
 > 3. Once they are completed, retry. Everything should work seamlessly since all of it is thoroughly tested.
 
-- Upload medical images for **AI-based diagnosis**. Task specific Computer Vision model powered agents - upload images from 'sample_images' folder to try out.
-- Ask medical queries to leverage **retrieval-augmented generation (RAG)** if information in memory or **web-search** to retrieve latest information.  
-- Use **voice-based** interaction (speech-to-text and text-to-speech).  
-- Review AI-generated insights with **human-in-the-loop verification**.  
+### Core Features:
+
+- **🧠 Memory-Enhanced Interactions**: The system remembers your medical history, preferences, and conversation context across sessions
+- **🖼️ Medical Image Analysis**: Upload medical images for AI-based diagnosis using specialized computer vision models
+- **🔍 Intelligent Information Retrieval**: Ask medical queries to leverage RAG or web search for latest information
+- **🎙️ Voice Interaction**: Use speech-to-text and text-to-speech for hands-free operation
+- **👨‍⚕️ Expert Validation**: Review AI-generated insights with human-in-the-loop verification
+- **🔒 Secure Operations**: Protected email sending and tool access with Arcade authentication
+
+### Memory Management:
+
+The system maintains two types of memory:
+- **Short-term Memory**: Tracks current conversation state and immediate context
+- **Long-term Memory**: Stores user preferences, medical history, and persistent information
+
+### Security Features:
+
+- **Arcade Integration**: Secure tool authentication and human authorization workflows
+- **Email Protection**: All email operations require human validation
+- **Audit Trail**: Complete logging of all authorization decisions
 
 ---
 
 ## 🤝 Contributions  <a name="contributions"></a>
-Contributions are welcome! Please check the [issues](https://github.com/souvikmajumder26/Multi-Agent-Medical-Assistant/issues) tab for feature requests and improvements.  
+Contributions are welcome! Please check the [issues](https://github.com/tejpal123456789/virtual-Medical-Lab-AI-Agent/issues) tab for feature requests and improvements.  
 
 ---
 
@@ -381,24 +388,22 @@ This project is licensed under the **Apache-2.0 License**. See the [LICENSE](LIC
 
 ## 📝 Citing <a name="citing"></a>
 ```
-@misc{Souvik2025,
-  Author = {Souvik Majumder},
+@misc{Tejpal2025,
+  Author = {Tejpal Kumawat},
   Title = {Multi Agent Medical Assistant},
   Year = {2025},
   Publisher = {GitHub},
   Journal = {GitHub repository},
-  Howpublished = {\url{https://github.com/souvikmajumder26/Multi-Agent-Medical-Assistant}}
+  Howpublished = {\url{https://github.com/tejpal123456789/virtual-Medical-Lab-AI-Agent.git}}
 }
 ```
 
 ---
 
 ## 📬 Contact  <a name="contact"></a>
-For any questions or collaboration inquiries, reach out to **Souvik Majumder** on:  
+For any questions or collaboration inquiries, reach out to **Tejpal Kumawat** on:  
 
-🔗 **LinkedIn**: [https://www.linkedin.com/in/souvikmajumder26](https://www.linkedin.com/in/souvikmajumder26)
-
-🔗 **GitHub**: [https://github.com/souvikmajumder26](https://github.com/souvikmajumder26)
+🔗 **LinkedIn**: [https://www.linkedin.com/in/tejpal-kumawat-722a061a9/](https://www.linkedin.com/in/tejpal-kumawat-722a061a9/)
 
 <p align="right">
  <a href="#top"><b>🔝 Return </b></a>
