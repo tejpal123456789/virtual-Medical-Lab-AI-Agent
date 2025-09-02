@@ -219,6 +219,8 @@ class LongTermMemoryManager:
             )
             
             logger.info(f"✅ Stored medical insight: {memory_id}")
+
+            
             return memory_id
             
         except Exception as e:
