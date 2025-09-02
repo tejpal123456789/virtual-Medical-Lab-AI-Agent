@@ -27,12 +27,10 @@
 > 3. **Advanced Memory Management**: Integration of LangGraph Checkpointer for short-term memory and Mem0 for long-term user context management.
 > 4. **Enhanced Web Search**: Bright Data integration for comprehensive web research capabilities.
 > 5. **Tool Authentication**: Arcade integration for secure tool authorization and human-in-the-loop validation.
->
-> To use Unstructured.io based solution, refer release - [v2.0](https://github.com/souvikmajumder26/Multi-Agent-Medical-Assistant/tree/v2.0).
+0).
  
 ## 📚 Table of Contents
 - [Overview](#overview)
-- [Demo](#demo)
 - [Technical Flow Chart](#technical-flowchart)
 - [Key Features](#key-features)
 - [Tech Stack](#technology-stack)
@@ -410,3 +408,4 @@ For any questions or collaboration inquiries, reach out to **Tejpal Kumawat** on
 </p>
 
 ---
+## Thank you
